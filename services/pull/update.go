@@ -19,8 +19,9 @@ import (
 	"code.gitea.io/gitea/modules/repository"
 )
 
+// TODO!: add merge strategy and option
 // Update updates pull request with base branch.
-func Update(ctx context.Context, pr *issues_model.PullRequest, doer *user_model.User, message string, rebase bool) error {
+func Update(ctx context.Context, pr *issues_model.PullRequest, doer *user_model.User, message string, rebase bool, strategy repo_model.MergeStrategy, option repo_model.MergeStrategyOption) error {
 	if pr.Flow == issues_model.PullRequestFlowAGit {
 		// TODO: update of agit flow pull request's head branch is unsupported
 		return fmt.Errorf("update of agit flow pull request's head branch is unsupported")
@@ -80,7 +81,7 @@ func Update(ctx context.Context, pr *issues_model.PullRequest, doer *user_model.
 		BaseBranch: pr.HeadBranch,
 	}
 
-	_, err = doMergeAndPush(ctx, reversePR, doer, repo_model.MergeStyleMerge, "", message, repository.PushTriggerPRUpdateWithBase)
+	_, err = doMergeAndPush(ctx, reversePR, doer, repo_model.MergeStyleMerge, "", message, repository.PushTriggerPRUpdateWithBase, strategy, option)
 
 	defer func() {
 		go AddTestPullRequestTask(doer, reversePR.HeadRepo.ID, reversePR.HeadBranch, false, "", "")
