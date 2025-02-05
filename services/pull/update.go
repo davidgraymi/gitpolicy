@@ -19,7 +19,6 @@ import (
 	"code.gitea.io/gitea/modules/repository"
 )
 
-// TODO!: add merge strategy and option
 // Update updates pull request with base branch.
 func Update(ctx context.Context, pr *issues_model.PullRequest, doer *user_model.User, message string, rebase bool, strategy repo_model.MergeStrategy, option repo_model.MergeStrategyOption) error {
 	if pr.Flow == issues_model.PullRequestFlowAGit {
