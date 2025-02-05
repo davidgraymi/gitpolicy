@@ -31,7 +31,7 @@
 						</span>
 					</div>
 					<div class="flex-item-trailing muted-links">
-						{{if .PrimaryLanguage}}
+						{{if and .PrimaryLanguage $.IsAdmin}}
 							<a class="flex-text-inline" href="?q={{$.Keyword}}&sort={{$.SortType}}&language={{.PrimaryLanguage.Language}}{{if $.TabName}}&tab={{$.TabName}}{{end}}">
 								<i class="color-icon tw-mr-2" style="background-color: {{.PrimaryLanguage.Color}}"></i>
 								{{.PrimaryLanguage.Language}}

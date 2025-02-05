@@ -8,7 +8,12 @@
 				{{if .Org.Visibility.IsPrivate}}<span class="ui large basic horizontal label">{{ctx.Locale.Tr "org.settings.visibility.private_shortname"}}</span>{{end}}
 			</span>
 			<span class="tw-flex tw-items-center tw-gap-1 tw-ml-auto tw-text-16 tw-whitespace-nowrap">
-				{{if .EnableFeed}}
+				<!-- TODO: add if enabled check -->
+				<a class="ui basic label button tw-mr-0" href="{{$.Org.HomeLink}}/hub" data-tooltip-content="{{if not $.IsSigned}}{{ctx.Locale.Tr "repo.view_guest_user"}}{{else}}{{ctx.Locale.Tr "repo.view"}}{{end}}">
+					{{svg "octicon-device-desktop" 24}}
+				</a>
+				<!-- TODO: add end if enabled check -->
+				{{if and .IsAdmin .EnableFeed}}
 					<a class="ui basic label button tw-mr-0" href="{{.Org.HomeLink}}.rss" data-tooltip-content="{{ctx.Locale.Tr "rss_feed"}}">
 						{{svg "octicon-rss" 24}}
 					</a>
