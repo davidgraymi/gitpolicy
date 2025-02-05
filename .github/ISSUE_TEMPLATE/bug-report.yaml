@@ -17,6 +17,11 @@ body:
       label: Description
       description: |
         Please provide a description of your issue here, with a URL if you were able to reproduce the issue (see below).
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If this issue involves the Web Interface, please provide one or more screenshots
   - type: input
     id: organization
     attributes:
@@ -29,7 +34,7 @@ body:
       label: Subscription plan
       description: Bindersnap subscription plan
     validations:
-      required: true
+      required: false
   - type: dropdown
     id: can-reproduce
     attributes:
@@ -39,11 +44,6 @@ body:
         - "No"
     validations:
       required: false
-  - type: textarea
-    id: screenshots
-    attributes:
-      label: Screenshots
-      description: If this issue involves the Web Interface, please provide one or more screenshots
   - type: dropdown
     id: browser
     attributes:
