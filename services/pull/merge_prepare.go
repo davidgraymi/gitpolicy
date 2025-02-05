@@ -270,7 +270,7 @@ func (err ErrRebaseConflicts) Error() string {
 
 // rebaseTrackingOnToBase checks out the tracking branch as staging and rebases it on to the base branch
 // if there is a conflict it will return an ErrRebaseConflicts
-func rebaseTrackingOnToBase(ctx *mergeContext, mergeStyle repo_model.MergeStyle, strategy repo_model.MergeStrategy, option repo_model.MergeStrategyOption) error {
+func rebaseTrackingOnToBase(ctx *mergeContext, mergeStyle repo_model.MergeStyle) error {
 	// Checkout head branch
 	if err := git.NewCommand(ctx, "checkout", "-b").AddDynamicArguments(stagingBranch, trackingBranch).
 		Run(ctx.RunOpts()); err != nil {

@@ -279,7 +279,6 @@ func handleCloseCrossReferences(ctx context.Context, pr *issues_model.PullReques
 	return nil
 }
 
-// TODO!: accept a merge strategy and options
 // doMergeAndPush performs the merge operation without changing any pull information in database and pushes it up to the base repository
 func doMergeAndPush(ctx context.Context, pr *issues_model.PullRequest, doer *user_model.User, mergeStyle repo_model.MergeStyle, expectedHeadCommitID, message string, pushTrigger repo_module.PushTrigger, strategy repo_model.MergeStrategy, option repo_model.MergeStrategyOption) (string, error) { //nolint:unparam
 	// Clone base repo.
@@ -296,7 +295,7 @@ func doMergeAndPush(ctx context.Context, pr *issues_model.PullRequest, doer *use
 			return "", err
 		}
 	case repo_model.MergeStyleRebase, repo_model.MergeStyleRebaseMerge:
-		if err := doMergeStyleRebase(mergeCtx, mergeStyle, message, strategy, option); err != nil {
+		if err := doMergeStyleRebase(mergeCtx, mergeStyle, message); err != nil {
 			return "", err
 		}
 	case repo_model.MergeStyleSquash:

@@ -31,7 +31,7 @@ func updateHeadByRebaseOnToBase(ctx context.Context, pr *issues_model.PullReques
 	oldMergeBase = strings.TrimSpace(oldMergeBase)
 
 	// Rebase the tracking branch on to the base as the staging branch
-	if err := rebaseTrackingOnToBase(mergeCtx, repo_model.MergeStyleRebaseUpdate, repo_model.MergeStrategyDefault, repo_model.MergeStrategyOptionNone); err != nil {
+	if err := rebaseTrackingOnToBase(mergeCtx, repo_model.MergeStyleRebaseUpdate); err != nil {
 		return err
 	}
 
