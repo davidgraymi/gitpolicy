@@ -940,6 +940,8 @@ func UpdatePullRequest(ctx *context.Context) {
 	}
 
 	rebase := ctx.FormString("style") == "rebase"
+	strategy := repo_model.MergeStrategy(ctx.FormString("strategy"))
+	option := repo_model.MergeStrategyOption(ctx.FormString("option"))
 
 	if err := issue.PullRequest.LoadBaseRepo(ctx); err != nil {
 		ctx.ServerError("LoadBaseRepo", err)
@@ -966,7 +968,7 @@ func UpdatePullRequest(ctx *context.Context) {
 	// default merge commit message
 	message := fmt.Sprintf("Merge branch '%s' into %s", issue.PullRequest.BaseBranch, issue.PullRequest.HeadBranch)
 
-	if err = pull_service.Update(ctx, issue.PullRequest, ctx.Doer, message, rebase); err != nil {
+	if err = pull_service.Update(ctx, issue.PullRequest, ctx.Doer, message, rebase, strategy, option); err != nil {
 		if pull_service.IsErrMergeConflicts(err) {
 			conflictError := err.(pull_service.ErrMergeConflicts)
 			flashError, err := ctx.RenderToHTML(tplAlertDetails, map[string]any{

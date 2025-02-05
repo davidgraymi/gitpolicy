@@ -77,6 +77,7 @@
 					<li>{{.}}</li>
 					{{end}}
 				</ul>
+        {{template "repo/issue/view_content/update_branch_by_merge" $}}
 			{{else if .IsPullRequestBroken}}
 				<div class="item">
 					{{svg "octicon-x"}}

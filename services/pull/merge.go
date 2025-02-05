@@ -213,7 +213,7 @@ func Merge(ctx context.Context, pr *issues_model.PullRequest, doer *user_model.U
 		go AddTestPullRequestTask(doer, pr.BaseRepo.ID, pr.BaseBranch, false, "", "")
 	}()
 
-	_, err = doMergeAndPush(ctx, pr, doer, mergeStyle, expectedHeadCommitID, message, repo_module.PushTriggerPRMergeToBase)
+	_, err = doMergeAndPush(ctx, pr, doer, mergeStyle, expectedHeadCommitID, message, repo_module.PushTriggerPRMergeToBase, repo_model.MergeStrategyDefault, repo_model.MergeStrategyOptionNone)
 	releaser()
 	if err != nil {
 		return err
@@ -280,7 +280,7 @@ func handleCloseCrossReferences(ctx context.Context, pr *issues_model.PullReques
 }
 
 // doMergeAndPush performs the merge operation without changing any pull information in database and pushes it up to the base repository
-func doMergeAndPush(ctx context.Context, pr *issues_model.PullRequest, doer *user_model.User, mergeStyle repo_model.MergeStyle, expectedHeadCommitID, message string, pushTrigger repo_module.PushTrigger) (string, error) { //nolint:unparam
+func doMergeAndPush(ctx context.Context, pr *issues_model.PullRequest, doer *user_model.User, mergeStyle repo_model.MergeStyle, expectedHeadCommitID, message string, pushTrigger repo_module.PushTrigger, strategy repo_model.MergeStrategy, option repo_model.MergeStrategyOption) (string, error) { //nolint:unparam
 	// Clone base repo.
 	mergeCtx, cancel, err := createTemporaryRepoForMerge(ctx, pr, doer, expectedHeadCommitID)
 	if err != nil {
@@ -291,7 +291,7 @@ func doMergeAndPush(ctx context.Context, pr *issues_model.PullRequest, doer *use
 	// Merge commits.
 	switch mergeStyle {
 	case repo_model.MergeStyleMerge:
-		if err := doMergeStyleMerge(mergeCtx, message); err != nil {
+		if err := doMergeStyleMerge(mergeCtx, message, strategy, option); err != nil {
 			return "", err
 		}
 	case repo_model.MergeStyleRebase, repo_model.MergeStyleRebaseMerge:

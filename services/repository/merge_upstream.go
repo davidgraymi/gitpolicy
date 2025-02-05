@@ -67,7 +67,7 @@ func MergeUpstream(ctx context.Context, doer *user_model.User, repo *repo_model.
 		BaseBranch: branch,
 	}
 	fakeIssue.PullRequest = fakePR
-	err = pull.Update(ctx, fakePR, doer, "merge upstream", false)
+	err = pull.Update(ctx, fakePR, doer, "merge upstream", false, repo_model.MergeStrategyDefault, repo_model.MergeStrategyOptionNone)
 	if err != nil {
 		return "", err
 	}

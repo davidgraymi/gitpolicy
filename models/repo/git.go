@@ -29,6 +29,34 @@ const (
 	MergeStyleRebaseUpdate MergeStyle = "rebase-update-only"
 )
 
+// MergeStrategy represents the strategy for merging.
+type MergeStrategy string
+
+const (
+	MergeStrategyDefault   MergeStrategy = ""
+	MergeStrategyOrt       MergeStrategy = "ort"
+	MergeStrategyRecursive MergeStrategy = "recursive"
+	MergeStrategyResolve   MergeStrategy = "resolve"
+	MergeStrategyOctopus   MergeStrategy = "octopus"
+	MergeStrategyOurs      MergeStrategy = "ours"
+	MergeStrategySubtree   MergeStrategy = "subtree"
+)
+
+// MergeStrategyOption represents the options for merging strategies.
+type MergeStrategyOption string
+
+const (
+	MergeStrategyOptionNone              MergeStrategyOption = ""
+	MergeStrategyOptionOurs              MergeStrategyOption = "ours"
+	MergeStrategyOptionTheirs            MergeStrategyOption = "theirs"
+	MergeStrategyOptionRenormalize       MergeStrategyOption = "renormalize"
+	MergeStrategyOptionNoRenormalize     MergeStrategyOption = "no-renormalize"
+	MergeStrategyOptionIgnoreSpaceChange MergeStrategyOption = "ignore-space-change"
+	MergeStrategyOptionIgnoreAllSpace    MergeStrategyOption = "ignore-all-space"
+	MergeStrategyOptionIgnoreSpaceAtEol  MergeStrategyOption = "ignore-space-at-eol"
+	MergeStrategyOptionIgnoreCrAtEol     MergeStrategyOption = "ignore-cr-at-eol"
+)
+
 // UpdateDefaultBranch updates the default branch
 func UpdateDefaultBranch(ctx context.Context, repo *Repository) error {
 	_, err := db.GetEngine(ctx).ID(repo.ID).Cols("default_branch").Update(repo)
