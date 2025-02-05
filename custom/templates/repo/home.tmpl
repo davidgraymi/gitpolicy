@@ -29,6 +29,9 @@
 						{{if .IsViewTag}}
 							{{$branchDropdownCurrentRefType = "tag"}}
 							{{$branchDropdownCurrentRefShortName = .TagName}}
+            {{else if .IsViewCommit}}
+              {{$branchDropdownCurrentRefType = "commit"}}
+              {{$branchDropdownCurrentRefShortName = .CommitID}}
 						{{end}}
 						{{template "repo/branch_dropdown" dict
 							"Repository" .Repository
