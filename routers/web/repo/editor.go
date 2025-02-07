@@ -399,8 +399,6 @@ func NewFilePost(ctx *context.Context) {
 // DiffPreviewPost render preview diff page
 func DiffPreviewPost(ctx *context.Context) {
 	form := web.GetForm(ctx).(*forms.EditPreviewDiffForm)
-	fmt.Println("PREVIEW DIFF")
-	fmt.Println(form.Content)
 	treePath := cleanUploadFileName(ctx.Repo.TreePath)
 	if len(treePath) == 0 {
 		ctx.Error(http.StatusInternalServerError, "file name to diff is invalid")
