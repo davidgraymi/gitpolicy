@@ -91,9 +91,8 @@ export function initRepoEditor() {
   const onUpdate = () => {
     const options = {};
     const formatedHTMl = beautify.html(editor.getHTML(), options);
-    // console.log('EDITED TEXT');
-    // console.log(formatedHTMl);
     editArea.value = formatedHTMl;
+    editArea.dispatchEvent(new Event('change')); // seems to be needed for jquery-are-you-sure
   };
 
   editor.on('update', onUpdate);
@@ -224,11 +223,13 @@ export function initRepoEditor() {
       dirtyClass: dirtyFileClass,
       fieldSelector: ':input:not(.commit-form-wrapper :input)',
       change($form) {
+        console.log($form)
         const dirty = $form[0]?.classList.contains(dirtyFileClass);
         commitButton.disabled = !dirty;
       },
     });
 
+    // TODO!: re-enable this
     // Update the editor from query params, if available,
     // only after the dirtyFileClass initialization
     // const params = new URLSearchParams(window.location.search);
@@ -239,8 +240,6 @@ export function initRepoEditor() {
 
     commitButton?.addEventListener('click', async (e) => {
       // A modal which asks if an empty file should be committed
-      console.log('CLICK');
-      console.log(editArea.value);
       if (!editArea.value) {
         e.preventDefault();
         if (await confirmModal({

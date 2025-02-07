@@ -146,7 +146,7 @@ function clearMergeMessage() {
             <template v-if="isTargetingDefaultBranch">
               {{ mergeForm.targetingDefaultBranchTextDoMerge }}
             </template>
-            <template v-else="isTargetingDefaultBranch">
+            <template v-else>
               {{ mergeStyleDetail.textDoMerge }}
             </template>
             <template v-if="autoMergeWhenSucceed">
