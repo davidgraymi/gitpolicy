@@ -7,6 +7,8 @@ const {csrfToken, pageData} = window.config;
 
 const mergeForm = ref(pageData.pullRequestMergeForm);
 
+const isTargetingDefaultBranch = mergeForm.value.isTargetingDefaultBranch;
+
 const mergeTitleFieldValue = ref('');
 const mergeMessageFieldValue = ref('');
 const deleteBranchAfterMerge = ref(false);
@@ -141,13 +143,18 @@ function clearMergeMessage() {
         <button class="ui button">
           <svg-icon name="octicon-git-merge"/>
           <span class="button-text">
-            {{ mergeStyleDetail.textDoMerge }}
+            <template v-if="isTargetingDefaultBranch">
+              {{ mergeForm.targetingDefaultBranchTextDoMerge }}
+            </template>
+            <template v-else="isTargetingDefaultBranch">
+              {{ mergeStyleDetail.textDoMerge }}
+            </template>
             <template v-if="autoMergeWhenSucceed">
               {{ mergeForm.textAutoMergeButtonWhenSucceed }}
             </template>
           </span>
         </button>
-        <div class="ui dropdown icon button" @click.stop="showMergeStyleMenu = !showMergeStyleMenu" v-if="mergeStyleAllowedCount>1">
+        <div class="ui dropdown icon button" @click.stop="showMergeStyleMenu = !showMergeStyleMenu" v-if="mergeStyleAllowedCount>1 && !isTargetingDefaultBranch">
           <svg-icon name="octicon-triangle-down" :size="14"/>
           <div class="menu" :class="{'show':showMergeStyleMenu}">
             <template v-for="msd in mergeForm.mergeStyles">

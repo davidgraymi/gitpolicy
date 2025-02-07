@@ -206,6 +206,7 @@
 					{{$prUnit := .Repository.MustGetUnit ctx ctx.Consts.RepoUnitTypePullRequests}}
 					{{if or $prUnit.PullRequestsConfig.AllowMerge $prUnit.PullRequestsConfig.AllowRebase $prUnit.PullRequestsConfig.AllowRebaseMerge $prUnit.PullRequestsConfig.AllowSquash $prUnit.PullRequestsConfig.AllowFastForwardOnly}}
 						{{$hasPendingPullRequestMergeTip := ""}}
+            {{$isTargetingDefaultBranch := eq .BaseRepo.DefaultBranch .BaseBranch}}
 						{{if .HasPendingPullRequestMerge}}
 							{{$createdPRMergeStr := DateUtils.TimeSince .PendingPullRequestMerge.CreatedUnix}}
 							{{$hasPendingPullRequestMergeTip = ctx.Locale.Tr "repo.pulls.auto_merge_has_pending_schedule" .PendingPullRequestMerge.Doer.Name $createdPRMergeStr}}
@@ -239,6 +240,8 @@
 
 								'hasPendingPullRequestMerge': {{.HasPendingPullRequestMerge}},
 								'hasPendingPullRequestMergeTip': {{$hasPendingPullRequestMergeTip}},
+                'isTargetingDefaultBranch': {{$isTargetingDefaultBranch}},
+                'targetingDefaultBranchTextDoMerge': {{ctx.Locale.Tr "repo.pulls.merge_pr_default_branch"}},
 							};
 
 							const generalHideAutoMerge = mergeForm.canMergeNow && mergeForm.allOverridableChecksOk; // if this pr can be merged now, then hide the auto merge
