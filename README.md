@@ -1,4 +1,4 @@
-# Gitea
+# Bindersnap
 
 [![](https://github.com/go-gitea/gitea/actions/workflows/release-nightly.yml/badge.svg?branch=main)](https://github.com/go-gitea/gitea/actions/workflows/release-nightly.yml?query=branch%3Amain "Release Nightly")
 [![](https://img.shields.io/discord/322538954119184384.svg?logo=discord&logoColor=white&label=Discord&color=5865F2)](https://discord.gg/Gitea "Join the Discord chat at https://discord.gg/Gitea")
@@ -6,7 +6,7 @@
 [![](https://pkg.go.dev/badge/code.gitea.io/gitea?status.svg)](https://pkg.go.dev/code.gitea.io/gitea "GoDoc")
 [![](https://img.shields.io/github/release/go-gitea/gitea.svg)](https://github.com/go-gitea/gitea/releases/latest "GitHub release")
 [![](https://www.codetriage.com/go-gitea/gitea/badges/users.svg)](https://www.codetriage.com/go-gitea/gitea "Help Contribute to Open Source")
-[![](https://opencollective.com/gitea/tiers/backers/badge.svg?label=backers&color=brightgreen)](https://opencollective.com/gitea "Become a backer/sponsor of gitea")
+[![](https://opencollective.com/gitea/tiers/backers/badge.svg?label=backers&color=brightgreen)](https://opencollective.com/gitea "Become a backer/sponsor of Bindersnap")
 [![](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT "License: MIT")
 [![Contribute with Gitpod](https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod&color=green)](https://gitpod.io/#https://github.com/go-gitea/gitea)
 [![](https://badges.crowdin.net/gitea/localized.svg)](https://crowdin.com/project/gitea "Crowdin")
@@ -79,7 +79,7 @@ https://docs.gitea.com/contributing/localization
 ## Further information
 
 For more information and instructions about how to install Gitea, please look at our [documentation](https://docs.gitea.com/).
-If you have questions that are not covered by the documentation, you can get in contact with us on our [Discord server](https://discord.gg/Gitea) or create  a post in the [discourse forum](https://forum.gitea.com/).
+If you have questions that are not covered by the documentation, you can get in contact with us on our [Discord server](https://discord.gg/Gitea) or create a post in the [discourse forum](https://forum.gitea.com/).
 
 We maintain a list of Gitea-related projects at [gitea/awesome-gitea](https://gitea.com/gitea/awesome-gitea).
 
@@ -91,49 +91,18 @@ The official Gitea CLI is developed at [gitea/tea](https://gitea.com/gitea/tea).
 - [Contributors](https://github.com/go-gitea/gitea/graphs/contributors)
 - [Translators](options/locale/TRANSLATORS)
 
-## Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/gitea#backer)]
-
-<a href="https://opencollective.com/gitea#backers" target="_blank"><img src="https://opencollective.com/gitea/backers.svg?width=890"></a>
-
-## Sponsors
-
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/gitea#sponsor)]
-
-<a href="https://opencollective.com/gitea/sponsor/0/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/gitea/sponsor/1/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/gitea/sponsor/2/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/gitea/sponsor/3/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/gitea/sponsor/4/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/gitea/sponsor/5/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/gitea/sponsor/6/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/gitea/sponsor/7/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/gitea/sponsor/8/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/gitea/sponsor/9/website" target="_blank"><img src="https://opencollective.com/gitea/sponsor/9/avatar.svg"></a>
-
-## FAQ
-
-**How do you pronounce Gitea?**
-
-Gitea is pronounced [/ɡɪ’ti:/](https://youtu.be/EM71-2uDAoY) as in "gi-tea" with a hard g.
-
-**Why is this not hosted on a Gitea instance?**
-
-We're [working on it](https://github.com/go-gitea/gitea/issues/1029).
-
 ## License
 
 This project is licensed under the MIT License.
-See the [LICENSE](https://github.com/go-gitea/gitea/blob/main/LICENSE) file
+See the [LICENSE](https://github.com/davidgraymi/bindersnap/blob/main/LICENSE) file
 for the full license text.
 
 ## Screenshots
 
 Looking for an overview of the interface? Check it out!
 
-|![Dashboard](https://dl.gitea.com/screenshots/home_timeline.png)|![User Profile](https://dl.gitea.com/screenshots/user_profile.png)|![Global Issues](https://dl.gitea.com/screenshots/global_issues.png)|
-|:---:|:---:|:---:|
-|![Branches](https://dl.gitea.com/screenshots/branches.png)|![Web Editor](https://dl.gitea.com/screenshots/web_editor.png)|![Activity](https://dl.gitea.com/screenshots/activity.png)|
-|![New Migration](https://dl.gitea.com/screenshots/migration.png)|![Migrating](https://dl.gitea.com/screenshots/migration.gif)|![Pull Request View](https://image.ibb.co/e02dSb/6.png)|
-|![Pull Request Dark](https://dl.gitea.com/screenshots/pull_requests_dark.png)|![Diff Review Dark](https://dl.gitea.com/screenshots/review_dark.png)|![Diff Dark](https://dl.gitea.com/screenshots/diff_dark.png)|
+|       ![Dashboard](https://dl.gitea.com/screenshots/home_timeline.png)        |  ![User Profile](https://dl.gitea.com/screenshots/user_profile.png)   | ![Global Issues](https://dl.gitea.com/screenshots/global_issues.png) |
+| :---------------------------------------------------------------------------: | :-------------------------------------------------------------------: | :------------------------------------------------------------------: |
+|          ![Branches](https://dl.gitea.com/screenshots/branches.png)           |    ![Web Editor](https://dl.gitea.com/screenshots/web_editor.png)     |      ![Activity](https://dl.gitea.com/screenshots/activity.png)      |
+|       ![New Migration](https://dl.gitea.com/screenshots/migration.png)        |     ![Migrating](https://dl.gitea.com/screenshots/migration.gif)      |       ![Pull Request View](https://image.ibb.co/e02dSb/6.png)        |
+| ![Pull Request Dark](https://dl.gitea.com/screenshots/pull_requests_dark.png) | ![Diff Review Dark](https://dl.gitea.com/screenshots/review_dark.png) |     ![Diff Dark](https://dl.gitea.com/screenshots/diff_dark.png)     |
