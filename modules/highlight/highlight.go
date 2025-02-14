@@ -56,7 +56,7 @@ func NewContext() {
 }
 
 // Code returns a HTML version of code string with chroma syntax highlighting classes and the matched lexer name
-func Code(fileName, language, code string) (output template.HTML, lexerName string) {
+func Code(fileName, language, code string, escape bool) (output template.HTML, lexerName string) {
 	NewContext()
 
 	// diff view newline will be passed as empty, change to literal '\n' so it can be copied
@@ -66,7 +66,13 @@ func Code(fileName, language, code string) (output template.HTML, lexerName stri
 	}
 
 	if len(code) > sizeLimit {
-		return template.HTML(template.HTMLEscapeString(code)), ""
+		if escape {
+			print(" Code() return escaped code.")
+			return template.HTML(template.HTMLEscapeString(code)), ""
+		} else {
+			print(" Code() return html.")
+			return template.HTML(code), ""
+		}
 	}
 
 	var lexer chroma.Lexer
@@ -103,11 +109,11 @@ func Code(fileName, language, code string) (output template.HTML, lexerName stri
 		cache.Add(fileName, lexer)
 	}
 
-	return CodeFromLexer(lexer, code), formatLexerName(lexer.Config().Name)
+	return CodeFromLexer(lexer, code, escape), formatLexerName(lexer.Config().Name)
 }
 
 // CodeFromLexer returns a HTML version of code string with chroma syntax highlighting classes
-func CodeFromLexer(lexer chroma.Lexer, code string) template.HTML {
+func CodeFromLexer(lexer chroma.Lexer, code string, escape bool) template.HTML {
 	formatter := html.New(html.WithClasses(true),
 		html.WithLineNumbers(false),
 		html.PreventSurroundingPre(true),
@@ -119,13 +125,21 @@ func CodeFromLexer(lexer chroma.Lexer, code string) template.HTML {
 	iterator, err := lexer.Tokenise(nil, code)
 	if err != nil {
 		log.Error("Can't tokenize code: %v", err)
-		return template.HTML(template.HTMLEscapeString(code))
+		if escape {
+			return template.HTML(template.HTMLEscapeString(code))
+		} else {
+			return template.HTML(code)
+		}
 	}
 	// style not used for live site but need to pass something
-	err = formatter.Format(htmlw, githubStyles, iterator)
+	err = formatter.Format(htmlw, githubStyles, iterator, escape)
 	if err != nil {
 		log.Error("Can't format code: %v", err)
-		return template.HTML(template.HTMLEscapeString(code))
+		if escape {
+			return template.HTML(template.HTMLEscapeString(code))
+		} else {
+			return template.HTML(code)
+		}
 	}
 
 	_ = htmlw.Flush()
@@ -185,7 +199,7 @@ func File(fileName, language string, code []byte) ([]template.HTML, string, erro
 	lines := make([]template.HTML, 0, len(tokensLines))
 	for _, tokens := range tokensLines {
 		iterator = chroma.Literator(tokens...)
-		err = formatter.Format(htmlBuf, githubStyles, iterator)
+		err = formatter.Format(htmlBuf, githubStyles, iterator, false)
 		if err != nil {
 			return nil, "", fmt.Errorf("can't format code: %w", err)
 		}

@@ -191,6 +191,14 @@ func getLineContent(content string, locale translation.Locale) DiffInline {
 	return DiffInline{EscapeStatus: &charset.EscapeStatus{}, Content: "<br>"}
 }
 
+// escape a line's content or return <br> needed for copy/paste purposes
+// func getLineContentWithoutEscape(content string, locale translation.Locale) DiffInline {
+// 	if len(content) > 0 {
+// 		return DiffInlineWithoutEscape(template.HTML(content), locale)
+// 	}
+// 	return DiffInline{EscapeStatus: &charset.EscapeStatus{}, Content: "<br>"}
+// }
+
 // DiffSection represents a section of a DiffFile.
 type DiffSection struct {
 	file     *DiffFile
@@ -203,6 +211,8 @@ var (
 	addedCodePrefix   = []byte(`<span class="added-code">`)
 	removedCodePrefix = []byte(`<span class="removed-code">`)
 	codeTagSuffix     = []byte(`</span>`)
+	divTagPrefix      = []byte(`<div>`)
+	divTagSuffix      = []byte(`</div>`)
 )
 
 func diffToHTML(lineWrapperTags []string, diffs []diffmatchpatch.Diff, lineType DiffLineType) string {
@@ -287,14 +297,39 @@ type DiffInline struct {
 }
 
 // DiffInlineWithUnicodeEscape makes a DiffInline with hidden unicode characters escaped
+func DiffInlineWithoutEscape(s template.HTML, locale translation.Locale) DiffInline {
+	status := &charset.EscapeStatus{
+		Escaped:      false,
+		HasError:     false,
+		HasBadRunes:  false,
+		HasInvisible: false,
+		HasAmbiguous: false,
+	}
+	return DiffInline{EscapeStatus: status, Content: s}
+}
+
+// DiffInlineWithUnicodeEscape makes a DiffInline with hidden unicode characters escaped
 func DiffInlineWithUnicodeEscape(s template.HTML, locale translation.Locale) DiffInline {
 	status, content := charset.EscapeControlHTML(s, locale)
 	return DiffInline{EscapeStatus: status, Content: content}
 }
 
 // DiffInlineWithHighlightCode makes a DiffInline with code highlight and hidden unicode characters escaped
+func DiffInlineWithHighlightCodeWithoutEscape(fileName, language, code string, locale translation.Locale) DiffInline {
+	highlighted, _ := highlight.Code(fileName, language, code, false)
+	status := &charset.EscapeStatus{
+		Escaped:      false,
+		HasError:     false,
+		HasBadRunes:  false,
+		HasInvisible: false,
+		HasAmbiguous: false,
+	}
+	return DiffInline{EscapeStatus: status, Content: highlighted}
+}
+
+// DiffInlineWithHighlightCode makes a DiffInline with code highlight and hidden unicode characters escaped
 func DiffInlineWithHighlightCode(fileName, language, code string, locale translation.Locale) DiffInline {
-	highlighted, _ := highlight.Code(fileName, language, code)
+	highlighted, _ := highlight.Code(fileName, language, code, true)
 	status, content := charset.EscapeControlHTML(highlighted, locale)
 	return DiffInline{EscapeStatus: status, Content: content}
 }
@@ -347,6 +382,192 @@ func (diffSection *DiffSection) GetComputedInlineDiffFor(diffLine *DiffLine, loc
 	// if the line wrappers are still needed in the future, it can be added back by "diffToHTML(hcd.lineWrapperTags. ...)"
 	diffHTML := diffToHTML(nil, diffRecord, diffLine.Type)
 	return DiffInlineWithUnicodeEscape(template.HTML(diffHTML), locale)
+}
+
+// GetComputedInlineDiffForPdoc computes inline diff for the given section in a pdoc.
+func (diffSection *DiffSection) GetComputedInlineDiffForPdoc(diffLine *DiffLine, locale translation.Locale) template.HTML {
+	var (
+		compareDiffLine *DiffLine
+		diff1           string
+		diff2           string
+	)
+
+	language := ""
+	if diffSection.file != nil {
+		language = diffSection.file.Language
+	}
+
+	print(diffLine.Content)
+	// try to find equivalent diff line. ignore, otherwise
+	switch diffLine.Type {
+	case DiffLineSection:
+		print(". DiffLineSection.")
+		if len(diffLine.Content[1:]) > 0 {
+			var temp bytes.Buffer
+			temp.Write(divTagPrefix)
+			temp.WriteString(html.EscapeString(diffLine.Content[1:]))
+			temp.Write(divTagSuffix)
+			out := temp.String()
+			print(out, "\n")
+			return template.HTML(out)
+		} else {
+			print("\n")
+			return template.HTML(`<br>`)
+		}
+	case DiffLineAdd:
+		print(". DiffLineAdd. ")
+		compareDiffLine = diffSection.GetLine(DiffLineDel, diffLine.RightIdx)
+		if compareDiffLine == nil {
+			highlighted, lex := highlight.Code(diffSection.FileName, language, diffLine.Content[1:], false)
+			// returns escaped string
+			print(highlighted, " from ", lex, "\n")
+			return highlighted
+		}
+		print(compareDiffLine.Content)
+		diff1 = compareDiffLine.Content
+		diff2 = diffLine.Content
+		print(" == ")
+		print(diff1)
+		print(", ")
+		print(diffLine.Content)
+		print(" == ")
+		print(diff1)
+		print(". ")
+	case DiffLineDel:
+		print(". DiffLineDel. ")
+		compareDiffLine = diffSection.GetLine(DiffLineAdd, diffLine.LeftIdx)
+		if compareDiffLine == nil {
+			highlighted, lex := highlight.Code(diffSection.FileName, language, diffLine.Content[1:], false)
+			print(highlighted, " from ", lex, "\n")
+			return highlighted
+		}
+		print(compareDiffLine.Content)
+		diff1 = diffLine.Content
+		diff2 = compareDiffLine.Content
+		print(" == ")
+		print(diff1)
+		print(", ")
+		print(diffLine.Content)
+		print(" == ")
+		print(diff1)
+		print(". ")
+	default:
+		print(". default. ")
+		if strings.IndexByte(" +-", diffLine.Content[0]) > -1 {
+			highlighted, lex := highlight.Code(diffSection.FileName, language, diffLine.Content[1:], false)
+			print(highlighted, " from ", lex, "\n")
+			return highlighted
+		}
+		highlighted, lex := highlight.Code(diffSection.FileName, language, diffLine.Content, false)
+		print(highlighted, " from ", lex, "\n")
+		return highlighted
+	}
+	print("diff1: ", diff1, "diff2: ", diff2, ". post. ")
+	hcd := newHighlightCodeDiff()
+	diffRecord := hcd.diffWithHighlight(diffSection.FileName, language, diff1[1:], diff2[1:])
+	// it seems that Gitea doesn't need the line wrapper of Chroma, so do not add them back
+	// if the line wrappers are still needed in the future, it can be added back by "diffToHTML(hcd.lineWrapperTags. ...)"
+	diffHTML := diffToHTML(nil, diffRecord, diffLine.Type)
+	print(diffHTML, "\n")
+	return template.HTML(diffHTML)
+}
+
+// GetComputedSectionDiffForPdoc computes inline diff for the given section in a pdoc.
+func (diffSection *DiffSection) GetComputedSectionDiffForPdoc(locale translation.Locale) template.HTML {
+	var output bytes.Buffer
+outer:
+	for _, diffLine := range diffSection.Lines {
+		var (
+			compareDiffLine *DiffLine
+			diff1           string
+			diff2           string
+		)
+
+		language := ""
+		if diffSection.file != nil {
+			language = diffSection.file.Language
+		}
+
+		// try to find equivalent diff line. ignore, otherwise
+		switch diffLine.Type {
+		case DiffLineSection:
+			if len(diffLine.Content[1:]) > 0 {
+				output.Write(divTagPrefix)
+				output.WriteString(html.EscapeString(diffLine.Content[1:]))
+				output.Write(divTagSuffix)
+			} else {
+				output.WriteString(`<br>`)
+			}
+			break outer
+		case DiffLineAdd:
+			compareDiffLine = diffSection.GetLine(DiffLineDel, diffLine.RightIdx)
+			if compareDiffLine == nil {
+				highlighted, _ := highlight.Code(diffSection.FileName, language, diffLine.Content[1:], false)
+				output.WriteString(string(highlighted))
+				break outer
+			}
+			diff1 = compareDiffLine.Content
+			diff2 = diffLine.Content
+		case DiffLineDel:
+			compareDiffLine = diffSection.GetLine(DiffLineAdd, diffLine.LeftIdx)
+			if compareDiffLine == nil {
+				highlighted, _ := highlight.Code(diffSection.FileName, language, diffLine.Content[1:], false)
+				output.WriteString(string(highlighted))
+				break outer
+			}
+			diff1 = diffLine.Content
+			diff2 = compareDiffLine.Content
+		default:
+			if strings.IndexByte(" +-", diffLine.Content[0]) > -1 {
+				highlighted, _ := highlight.Code(diffSection.FileName, language, diffLine.Content[1:], false)
+				output.WriteString(string(highlighted))
+				break outer
+			}
+			highlighted, _ := highlight.Code(diffSection.FileName, language, diffLine.Content, false)
+			output.WriteString(string(highlighted))
+			break outer
+		}
+
+		hcd := newHighlightCodeDiff()
+		diffRecord := hcd.diffWithHighlight(diffSection.FileName, language, diff1[1:], diff2[1:])
+		// it seems that Gitea doesn't need the line wrapper of Chroma, so do not add them back
+		// if the line wrappers are still needed in the future, it can be added back by "diffToHTML(hcd.lineWrapperTags. ...)"
+		diffHTML := diffToHTML(nil, diffRecord, diffLine.Type)
+		output.WriteString(diffHTML)
+	}
+
+	return template.HTML(output.String())
+
+	// var html bytes.Buffer
+
+	// for _, line := range diffSection.Lines {
+	// 	switch line.Type {
+	// 	case DiffLinePlain:
+	// 		content := strings.TrimPrefix(line.Content, "-")
+	// 		html.WriteString("<span class=\"same-code\">")
+	// 		html.WriteString(content)
+	// 		html.WriteString("</span>")
+	// 	case DiffLineAdd:
+	// 		content := strings.TrimPrefix(line.Content, "+")
+	// 		html.WriteString("<span class=\"added-code\">")
+	// 		html.WriteString(content)
+	// 		html.WriteString("</span>")
+	// 	case DiffLineDel:
+	// 		content := strings.TrimPrefix(line.Content, "-")
+	// 		html.WriteString("<span class=\"removed-code\">")
+	// 		html.WriteString(content)
+	// 		html.WriteString("</span>")
+	// 	case DiffLineSection:
+	// 		content := strings.TrimPrefix(line.Content, "-")
+	// 		html.WriteString("<span class=\"tag-code\">")
+	// 		html.WriteString(content)
+	// 		html.WriteString("</span>")
+	// 	default:
+	// 		html.WriteString(line.Content)
+	// 	}
+	// }
+
+	// return template.HTML(html.String())
 }
 
 // DiffFile represents a file diff.
@@ -1117,7 +1338,7 @@ func GetDiff(ctx context.Context, gitRepo *git.Repository, opts *DiffOptions, fi
 	}
 
 	if (len(opts.BeforeCommitID) == 0 || opts.BeforeCommitID == objectFormat.EmptyObjectID().String()) && commit.ParentCount() == 0 {
-		cmdDiff.AddArguments("diff", "--src-prefix=\\a/", "--dst-prefix=\\b/", "-M").
+		cmdDiff.AddArguments("diff", "--src-prefix=\\a/", "--dst-prefix=\\b/", "-M", "-W").
 			AddArguments(opts.WhitespaceBehavior...).
 			AddDynamicArguments(objectFormat.EmptyTree().String()).
 			AddDynamicArguments(opts.AfterCommitID)
@@ -1128,7 +1349,7 @@ func GetDiff(ctx context.Context, gitRepo *git.Repository, opts *DiffOptions, fi
 			actualBeforeCommitID = parentCommit.ID.String()
 		}
 
-		cmdDiff.AddArguments("diff", "--src-prefix=\\a/", "--dst-prefix=\\b/", "-M").
+		cmdDiff.AddArguments("diff", "--src-prefix=\\a/", "--dst-prefix=\\b/", "-M", "-W").
 			AddArguments(opts.WhitespaceBehavior...).
 			AddDynamicArguments(actualBeforeCommitID, opts.AfterCommitID)
 		opts.BeforeCommitID = actualBeforeCommitID
