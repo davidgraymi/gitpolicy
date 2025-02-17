@@ -39,6 +39,8 @@ import (
 	stdcharset "golang.org/x/net/html/charset"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/transform"
+
+	htmldiff "github.com/davidgraymi/html-diff"
 )
 
 // DiffLineType represents the type of DiffLine.
@@ -472,71 +474,106 @@ func (diffSection *DiffSection) GetComputedInlineDiffForPdoc(diffLine *DiffLine,
 	return template.HTML(diffHTML)
 }
 
+var cfg = &htmldiff.Config{
+	Granularity:  6,
+	InsertedSpan: []htmldiff.Attribute{{Key: "style", Val: "background-color: #4CBB17;"}},
+	DeletedSpan:  []htmldiff.Attribute{{Key: "style", Val: "background-color: #8B0000;"}},
+	ReplacedSpan: []htmldiff.Attribute{{Key: "style", Val: "background-color: #89CFF0;"}},
+	CleanTags:    []string{""},
+}
+
 // GetComputedSectionDiffForPdoc computes inline diff for the given section in a pdoc.
 func (diffSection *DiffSection) GetComputedSectionDiffForPdoc(locale translation.Locale) template.HTML {
-	var output bytes.Buffer
+	var left bytes.Buffer
+	var right bytes.Buffer
+	skip := false
 outer:
 	for _, diffLine := range diffSection.Lines {
+		if skip {
+			skip = false
+			continue outer
+		}
+		// print("left: ", left.String(), "\n")
+		// print("right: ", right.String(), "\n")
+		print("diff: ", diffLine.Content, "\n")
 		var (
 			compareDiffLine *DiffLine
 			diff1           string
 			diff2           string
 		)
 
-		language := ""
-		if diffSection.file != nil {
-			language = diffSection.file.Language
-		}
-
 		// try to find equivalent diff line. ignore, otherwise
 		switch diffLine.Type {
 		case DiffLineSection:
 			if len(diffLine.Content[1:]) > 0 {
-				output.Write(divTagPrefix)
-				output.WriteString(html.EscapeString(diffLine.Content[1:]))
-				output.Write(divTagSuffix)
+				left.Write(divTagPrefix)
+				left.WriteString(diffLine.Content[1:])
+				left.Write(divTagSuffix)
+				left.WriteString("\n")
+				right.Write(divTagPrefix)
+				right.WriteString(diffLine.Content[1:])
+				right.Write(divTagSuffix)
+				right.WriteString("\n")
 			} else {
-				output.WriteString(`<br>`)
+				left.WriteString(`<br>`)
+				left.WriteString("\n")
+				right.WriteString(`<br>`)
+				right.WriteString("\n")
 			}
-			break outer
+			continue outer
 		case DiffLineAdd:
 			compareDiffLine = diffSection.GetLine(DiffLineDel, diffLine.RightIdx)
 			if compareDiffLine == nil {
-				highlighted, _ := highlight.Code(diffSection.FileName, language, diffLine.Content[1:], false)
-				output.WriteString(string(highlighted))
-				break outer
+				// left.WriteString(diffLine.Content[1:])
+				right.WriteString(diffLine.Content[1:])
+				right.WriteString("\n")
+				continue outer
 			}
 			diff1 = compareDiffLine.Content
 			diff2 = diffLine.Content
 		case DiffLineDel:
 			compareDiffLine = diffSection.GetLine(DiffLineAdd, diffLine.LeftIdx)
 			if compareDiffLine == nil {
-				highlighted, _ := highlight.Code(diffSection.FileName, language, diffLine.Content[1:], false)
-				output.WriteString(string(highlighted))
-				break outer
+				left.WriteString(diffLine.Content[1:])
+				left.WriteString("\n")
+				// right.WriteString(diffLine.Content[1:])
+				continue outer
 			}
 			diff1 = diffLine.Content
 			diff2 = compareDiffLine.Content
 		default:
 			if strings.IndexByte(" +-", diffLine.Content[0]) > -1 {
-				highlighted, _ := highlight.Code(diffSection.FileName, language, diffLine.Content[1:], false)
-				output.WriteString(string(highlighted))
-				break outer
+				left.WriteString(diffLine.Content[1:])
+				left.WriteString("\n")
+				right.WriteString(diffLine.Content[1:])
+				right.WriteString("\n")
+				continue outer
 			}
-			highlighted, _ := highlight.Code(diffSection.FileName, language, diffLine.Content, false)
-			output.WriteString(string(highlighted))
-			break outer
+			left.WriteString(diffLine.Content)
+			left.WriteString("\n")
+			right.WriteString(diffLine.Content)
+			right.WriteString("\n")
+			continue outer
 		}
-
-		hcd := newHighlightCodeDiff()
-		diffRecord := hcd.diffWithHighlight(diffSection.FileName, language, diff1[1:], diff2[1:])
-		// it seems that Gitea doesn't need the line wrapper of Chroma, so do not add them back
-		// if the line wrappers are still needed in the future, it can be added back by "diffToHTML(hcd.lineWrapperTags. ...)"
-		diffHTML := diffToHTML(nil, diffRecord, diffLine.Type)
-		output.WriteString(diffHTML)
+		print("diff1: ", diff1, "\n")
+		print("diff2: ", diff2, "\n")
+		left.WriteString(diff1[1:])
+		left.WriteString("\n")
+		right.WriteString(diff2[1:])
+		right.WriteString("\n")
+		skip = true
 	}
 
-	return template.HTML(output.String())
+	var versions []string = []string{left.String(), right.String()}
+	print("left: ", versions[0], "\n")
+	print("right: ", versions[1], "\n")
+	res, err := cfg.HTMLdiff(versions)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+
+	print("final: ", res[0], "\n")
+	return template.HTML(res[0])
 
 	// var html bytes.Buffer
 

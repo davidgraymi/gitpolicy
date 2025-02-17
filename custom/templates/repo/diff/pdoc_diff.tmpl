@@ -1,8 +1,6 @@
 {{$file := .file}}
 {{range $j, $section := $file.Sections}}
-  {{range $k, $line := $section.Lines}}
-    {{$inlineDiff := $section.GetComputedInlineDiffForPdoc $line ctx.Locale -}}
-    <!-- TODO!: add comment button here -->
-    {{$inlineDiff}}
-  {{end}}
+  {{$sectionDiff := $section.GetComputedSectionDiffForPdoc ctx.Locale -}}
+  <!-- TODO!: add comment button here -->
+  {{$sectionDiff}}
 {{end}}

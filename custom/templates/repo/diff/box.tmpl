@@ -196,8 +196,6 @@
 											{{ctx.Locale.Tr "repo.diff.bin_not_shown"}}
 										{{end}}
 									</div>
-                <!-- TODO!: Here we check if the file is binary and display a different diff view. We can leverage something
-                            similar for viewing .pdoc diffs. -->
                 {{else if $isPdoc}}
                   <div id="diff-rendered-{{$file.NameHash}}" class="chroma file-body file-code {{if $.IsSplitStyle}}code-diff-split{{else}}code-diff-unified{{end}}">
                     {{template "repo/diff/pdoc_diff" dict "file" . "root" $}}

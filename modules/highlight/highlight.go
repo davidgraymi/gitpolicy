@@ -132,7 +132,7 @@ func CodeFromLexer(lexer chroma.Lexer, code string, escape bool) template.HTML {
 		}
 	}
 	// style not used for live site but need to pass something
-	err = formatter.Format(htmlw, githubStyles, iterator, escape)
+	err = formatter.Format(htmlw, githubStyles, iterator)
 	if err != nil {
 		log.Error("Can't format code: %v", err)
 		if escape {
@@ -199,7 +199,7 @@ func File(fileName, language string, code []byte) ([]template.HTML, string, erro
 	lines := make([]template.HTML, 0, len(tokensLines))
 	for _, tokens := range tokensLines {
 		iterator = chroma.Literator(tokens...)
-		err = formatter.Format(htmlBuf, githubStyles, iterator, false)
+		err = formatter.Format(htmlBuf, githubStyles, iterator)
 		if err != nil {
 			return nil, "", fmt.Errorf("can't format code: %w", err)
 		}
