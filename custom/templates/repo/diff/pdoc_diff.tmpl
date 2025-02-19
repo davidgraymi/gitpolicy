@@ -1,0 +1,6 @@
+{{$file := .file}}
+{{range $j, $section := $file.Sections}}
+  {{$sectionDiff := $section.GetComputedSectionDiffForPdoc ctx.Locale -}}
+  <!-- TODO!: add comment button here -->
+  {{$sectionDiff}}
+{{end}}
