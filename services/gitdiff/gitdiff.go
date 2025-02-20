@@ -386,6 +386,7 @@ func (diffSection *DiffSection) GetComputedInlineDiffFor(diffLine *DiffLine, loc
 	return DiffInlineWithUnicodeEscape(template.HTML(diffHTML), locale)
 }
 
+// TODO!: remove
 // GetComputedInlineDiffForPdoc computes inline diff for the given section in a pdoc.
 func (diffSection *DiffSection) GetComputedInlineDiffForPdoc(diffLine *DiffLine, locale translation.Locale) template.HTML {
 	var (
@@ -493,9 +494,6 @@ outer:
 			skip = false
 			continue outer
 		}
-		// print("left: ", left.String(), "\n")
-		// print("right: ", right.String(), "\n")
-		print("diff: ", diffLine.Content, "\n")
 		var (
 			compareDiffLine *DiffLine
 			diff1           string
@@ -524,7 +522,6 @@ outer:
 		case DiffLineAdd:
 			compareDiffLine = diffSection.GetLine(DiffLineDel, diffLine.RightIdx)
 			if compareDiffLine == nil {
-				// left.WriteString(diffLine.Content[1:])
 				right.WriteString(diffLine.Content[1:])
 				right.WriteString("\n")
 				continue outer
@@ -536,7 +533,6 @@ outer:
 			if compareDiffLine == nil {
 				left.WriteString(diffLine.Content[1:])
 				left.WriteString("\n")
-				// right.WriteString(diffLine.Content[1:])
 				continue outer
 			}
 			diff1 = diffLine.Content
@@ -555,8 +551,6 @@ outer:
 			right.WriteString("\n")
 			continue outer
 		}
-		print("diff1: ", diff1, "\n")
-		print("diff2: ", diff2, "\n")
 		left.WriteString(diff1[1:])
 		left.WriteString("\n")
 		right.WriteString(diff2[1:])
@@ -565,46 +559,12 @@ outer:
 	}
 
 	var versions []string = []string{left.String(), right.String()}
-	print("left: ", versions[0], "\n")
-	print("right: ", versions[1], "\n")
 	res, err := cfg.HTMLdiff(versions)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
 
-	print("final: ", res[0], "\n")
 	return template.HTML(res[0])
-
-	// var html bytes.Buffer
-
-	// for _, line := range diffSection.Lines {
-	// 	switch line.Type {
-	// 	case DiffLinePlain:
-	// 		content := strings.TrimPrefix(line.Content, "-")
-	// 		html.WriteString("<span class=\"same-code\">")
-	// 		html.WriteString(content)
-	// 		html.WriteString("</span>")
-	// 	case DiffLineAdd:
-	// 		content := strings.TrimPrefix(line.Content, "+")
-	// 		html.WriteString("<span class=\"added-code\">")
-	// 		html.WriteString(content)
-	// 		html.WriteString("</span>")
-	// 	case DiffLineDel:
-	// 		content := strings.TrimPrefix(line.Content, "-")
-	// 		html.WriteString("<span class=\"removed-code\">")
-	// 		html.WriteString(content)
-	// 		html.WriteString("</span>")
-	// 	case DiffLineSection:
-	// 		content := strings.TrimPrefix(line.Content, "-")
-	// 		html.WriteString("<span class=\"tag-code\">")
-	// 		html.WriteString(content)
-	// 		html.WriteString("</span>")
-	// 	default:
-	// 		html.WriteString(line.Content)
-	// 	}
-	// }
-
-	// return template.HTML(html.String())
 }
 
 // DiffFile represents a file diff.
