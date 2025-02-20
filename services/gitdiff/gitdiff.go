@@ -213,7 +213,7 @@ var (
 	addedCodePrefix   = []byte(`<span class="added-code">`)
 	removedCodePrefix = []byte(`<span class="removed-code">`)
 	codeTagSuffix     = []byte(`</span>`)
-	divTagPrefix      = []byte(`<div>`)
+	divTagPrefix      = []byte(`<div class="tag-code">`)
 	divTagSuffix      = []byte(`</div>`)
 )
 
@@ -476,9 +476,9 @@ func (diffSection *DiffSection) GetComputedInlineDiffForPdoc(diffLine *DiffLine,
 
 var cfg = &htmldiff.Config{
 	Granularity:  6,
-	InsertedSpan: []htmldiff.Attribute{{Key: "style", Val: "background-color: #4CBB17;"}},
-	DeletedSpan:  []htmldiff.Attribute{{Key: "style", Val: "background-color: #8B0000;"}},
-	ReplacedSpan: []htmldiff.Attribute{{Key: "style", Val: "background-color: #89CFF0;"}},
+	InsertedSpan: []htmldiff.Attribute{{Key: "class", Val: "add"}},
+	DeletedSpan:  []htmldiff.Attribute{{Key: "class", Val: "rem"}},
+	ReplacedSpan: []htmldiff.Attribute{{Key: "class", Val: "spc"}},
 	CleanTags:    []string{""},
 }
 
